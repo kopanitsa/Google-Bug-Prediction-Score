@@ -40,6 +40,8 @@ def google_score(duration, existing):
     return 1.0 / (1.0+math.exp((-12.0*ti)+12.0))
 
 def calc_fix_score(datelist):
+    if len(datelist) < 1:
+        return 0
     first_commit_date= datelist[len(datelist)-1]
     existing_days = daydifference(first_commit_date, datetime.date.today().isoformat())
     score = 0
