@@ -66,12 +66,25 @@ def remove_unused_ext(path):
     else:
         return path
 
+def remove_git_directory(path):
+    index = path.find(".git/")
+    if index == -1:
+        return path
+    else:
+        return None
+
+def remove_unused_path(path):
+    path = remove_unused_ext(path)
+    if (path != None):
+        path = remove_git_directory(path)
+    return path
+
 def get_file_pathes(root):
     filelist = []
     for dpath, dnames, fnames in os.walk(root):
         for fname in fnames:
             path = dpath+"/"+fname
-            need_path = remove_unused_ext(path)
+            need_path = remove_unused_path(path)
             if (need_path != None):
 	            filelist.append(need_path)
     return filelist            
