@@ -10,7 +10,9 @@ Result is outputted as csv file.
 How To Use:
 $ cp <this script> <root of your project>
 $ cd <root of your project>
-$ python bugfix_score.py <full path to target directory>
+$ python bugfix_score.py <full path to target directory> [<extension>]
+if you set extension, this script is applied to set extension.
+(e.g. if you set "java", only scores of xxx.java file is outputted.)
 
 Note:
 Project must be managed with git.

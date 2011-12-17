@@ -56,12 +56,24 @@ def calc_score_from_path(path):
     score = calc_fix_score(datelist)
     return score
 
+def remove_unused_ext(path):
+    if len(sys.argv) == 2:
+        return path
+    ext = "." + sys.argv[2]
+    index = path.find(ext)
+    if index == -1:
+        return None
+    else:
+        return path
+
 def get_file_pathes(root):
     filelist = []
     for dpath, dnames, fnames in os.walk(root):
         for fname in fnames:
             path = dpath+"/"+fname
-            filelist.append(path)
+            need_path = remove_unused_ext(path)
+            if (need_path != None):
+	            filelist.append(need_path)
     return filelist            
 
 # how to use
