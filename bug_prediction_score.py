@@ -5,6 +5,9 @@ import math
 import datetime
 import commands
 import csv
+import optparse
+
+command_option = None
 
 def str2time(v):
     return datetime.datetime.strptime(v, "%Y-%m-%d")
@@ -57,9 +60,10 @@ def calc_score_from_path(path):
     return score
 
 def remove_unused_ext(path):
-    if len(sys.argv) == 2:
+    global command_option
+    if command_option.extension == None:
         return path
-    ext = "." + sys.argv[2]
+    ext = "." + command_option.extension
     index = path.find(ext)
     if index == -1:
         return None
@@ -67,7 +71,7 @@ def remove_unused_ext(path):
         return path
 
 def remove_git_directory(path):
-    index = path.find(".git/")
+    index = path.find(".git")
     if index == -1:
         return path
     else:
@@ -79,24 +83,60 @@ def remove_unused_path(path):
         path = remove_git_directory(path)
     return path
 
+
 def get_file_pathes(root):
     filelist = []
     for dpath, dnames, fnames in os.walk(root):
         for fname in fnames:
             path = dpath+"/"+fname
             need_path = remove_unused_path(path)
-            if (need_path != None):
+            if need_path != None:
 	            filelist.append(need_path)
-    return filelist            
+    return filelist
 
-# how to use
-# 1. change directory to git root
-# 2. input "python bugfix_ratio.py <full path to src directory>"
+def get_package_pathes(root):
+    packagelist = []
+    for dpath, dnames, fnames in os.walk(root):
+        for dname in dnames:
+            path = dpath+"/"+dname
+            path = path.replace('//', '/')
+            path = remove_git_directory(path)
+            if path != None:
+                packagelist.append(path)
+    return packagelist
+
+def get_pathes(root):
+    global command_option
+    f_package = command_option.package
+    if f_package:
+        list = get_package_pathes(root)
+    else:
+        list = get_file_pathes(root)
+    return list
+
+def perse_option():
+    parser = optparse.OptionParser()
+    parser.add_option("-t", "--target", dest="target",
+        default=".",
+        help="target path to analyse")
+    parser.add_option("-p", "--package", dest="package",
+        default="False", help="analyse not for file but package")
+    parser.add_option("-e", "--extension", dest="extension",
+        default=None, help="extension restriction (used only --package==False)")
+    options, remainder = parser.parse_args()
+    print 'target    :', options.target
+    print 'package   :', options.package
+    print 'extension :', options.extension
+    global command_option
+    command_option = options
+    return options
+
 print "=====start======"
+options = perse_option()
 outputfile = "bugfix_score.csv"
 writercsv = csv.writer(file(outputfile,"w"))
 
-filelist = get_file_pathes(sys.argv[1])
+filelist = get_pathes(options.target)
 for f in filelist:
     score = calc_score_from_path(f)
     print f
